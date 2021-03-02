@@ -60,6 +60,11 @@ config TARGET_PICO_IMX8MQ
 	select IMX8MQ
 	select IMX8M_LPDDR4
 
+config TARGET_KONTRON_PITX_IMX8M
+	bool "Support Kontron pITX-imx8m"
+	select IMX8MQ
+	select IMX8M_LPDDR4
+
 config TARGET_VERDIN_IMX8MM
        bool "Support Toradex Verdin iMX8M Mini module"
        select IMX8MM
@@ -102,5 +107,6 @@ source "board/beacon/imx8mm/Kconfig"
 source "board/beacon/imx8mn/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
+source "board/kontron/pitx_imx8m/Kconfig"
 
 endif
