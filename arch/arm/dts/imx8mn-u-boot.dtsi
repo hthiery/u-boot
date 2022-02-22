@@ -151,6 +151,18 @@
 		size = <0x4000>;
 	};
 };
+#elif CONFIG_IMX8M_DDR3L
+&u_boot_spl_ddr {
+	blob_1: blob-ext@1 {
+		filename = "ddr3_imem_1d.bin";
+		size = <0x8000>;
+	};
+
+	blob_2: blob-ext@2 {
+		filename = "ddr3_dmem_1d.bin";
+		size = <0x4000>;
+	};
+};
 #else
 	#error "no valid ddr config selected"
 #endif
