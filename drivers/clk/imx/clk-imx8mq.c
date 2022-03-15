@@ -15,6 +15,7 @@
 #include <dt-bindings/clock/imx8mq-clock.h>
 
 #include "clk.h"
+#include "clk-imx8m.h"
 
 static const char *pll_ref_sels[] = { "clock-osc-25m", "clock-osc-27m", "clock-phy-27m", "dummy", };
 static const char *arm_pll_bypass_sels[] = {"arm_pll", "arm_pll_ref_sel", };
@@ -116,94 +117,6 @@ static const char *pllout_monitor_sels[] = {"clock-osc-25m", "clock-osc-27m", "c
 					    "arm_pll_out_monitor", "sys_pll1_out_monitor",
 					    "sys_pll2_out_monitor", "sys_pll3_out_monitor",
 					    "dummy", "dram_pll_out_monitor", };
-
-static ulong imx8mq_clk_get_rate(struct clk *clk)
-{
-	struct clk *c;
-	int ret;
-
-	debug("%s(#%lu)\n", __func__, clk->id);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	return clk_get_rate(c);
-}
-
-static ulong imx8mq_clk_set_rate(struct clk *clk, unsigned long rate)
-{
-	struct clk *c;
-	int ret;
-
-	debug("%s(#%lu), rate: %lu\n", __func__, clk->id, rate);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	return clk_set_rate(c, rate);
-}
-
-static int __imx8mq_clk_enable(struct clk *clk, bool enable)
-{
-	struct clk *c;
-	int ret;
-
-	debug("%s(#%lu) en: %d\n", __func__, clk->id, enable);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret) {
-		debug("%s: clk_get_by_id failed\n", __func__);
-		return ret;
-	}
-
-	if (enable)
-		ret = clk_enable(c);
-	else
-		ret = clk_disable(c);
-
-	return ret;
-}
-
-static int imx8mq_clk_disable(struct clk *clk)
-{
-	return __imx8mq_clk_enable(clk, 0);
-}
-
-static int imx8mq_clk_enable(struct clk *clk)
-{
-	return __imx8mq_clk_enable(clk, 1);
-}
-
-static int imx8mq_clk_set_parent(struct clk *clk, struct clk *parent)
-{
-	struct clk *c, *cp;
-	int ret;
-
-	debug("%s(#%lu), parent: %lu\n", __func__, clk->id, parent->id);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	ret = clk_get_by_id(parent->id, &cp);
-	if (ret)
-		return ret;
-
-	ret = clk_set_parent(c, cp);
-	c->dev->parent = cp->dev;
-
-	return ret;
-}
-
-static struct clk_ops imx8mq_clk_ops = {
-	.set_rate = imx8mq_clk_set_rate,
-	.get_rate = imx8mq_clk_get_rate,
-	.enable = imx8mq_clk_enable,
-	.disable = imx8mq_clk_disable,
-	.set_parent = imx8mq_clk_set_parent,
-};
 
 static int imx8mq_clk_probe(struct udevice *dev)
 {
@@ -522,7 +435,7 @@ U_BOOT_DRIVER(imx8mq_clk) = {
 	.name = "clk_imx8mq",
 	.id = UCLASS_CLK,
 	.of_match = imx8mq_clk_ids,
-	.ops = &imx8mq_clk_ops,
+	.ops = &imx8m_clk_ops,
 	.probe = imx8mq_clk_probe,
 	.flags = DM_FLAG_PRE_RELOC,
 };
