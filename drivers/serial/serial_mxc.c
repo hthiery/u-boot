@@ -3,6 +3,7 @@
  * (c) 2007 Sascha Hauer <s.hauer@pengutronix.de>
  */
 
+#include <clk.h>
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -266,9 +267,19 @@ __weak struct serial_device *default_serial_console(void)
 int mxc_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct mxc_serial_plat *plat = dev_get_plat(dev);
-	u32 clk = imx_get_uartclk();
+	u32 rate = 0;
 
-	_mxc_serial_setbrg(plat->reg, clk, baudrate, plat->use_dte);
+	if (IS_ENABLED(CONFIG_CLK)) {
+		struct clk clk;
+		if(!clk_get_by_name(dev, "ipg", &clk))
+			rate = clk_get_rate(&clk);
+	}
+
+	/* as fallback we try to get the clk rate that way */
+	if (rate == 0)
+		rate = imx_get_uartclk();
+
+	_mxc_serial_setbrg(plat->reg, rate, baudrate, plat->use_dte);
 
 	return 0;
 }
